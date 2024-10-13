@@ -1,8 +1,5 @@
 import time
 import streamlit as st
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from stem import Signal
 from stem.control import Controller
 import random
@@ -45,14 +42,6 @@ def change_mac_address(interface):
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Gagal mengubah alamat MAC: {e}")
 
-# Atur opsi untuk Chrome
-def setup_driver():
-    chrome_options = Options()
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--proxy-server=socks5://127.0.0.1:9050')  # Menggunakan proxy Tor
-    return webdriver.Chrome(options=chrome_options)
-
 # Aplikasi Streamlit
 def main():
     st.title("Aplikasi Ganti MAC Address dan IP")
@@ -67,27 +56,9 @@ def main():
         change_ip()
         st.success("MAC Address dan IP telah berhasil diubah.")
 
-    # Inisialisasi ChromeDriver jika belum ada
-    if 'driver' not in st.session_state:
-        st.session_state.driver = None
-
-    if st.button("Akses URL"):
-        # Jika driver belum ada, buat yang baru
-        if st.session_state.driver is None:
-            st.session_state.driver = setup_driver()
-        
-        st.session_state.driver.get(url)
-        time.sleep(5)  # Tunggu untuk memuat halaman
-        
-        # Menampilkan halaman yang dituju
-        st.write("Halaman yang dituju:")
-        st.image(st.session_state.driver.get_screenshot_as_png(), use_column_width=True)
-
-    if st.button("Tutup Driver"):
-        if st.session_state.driver:
-            st.session_state.driver.quit()
-            st.session_state.driver = None
-            st.success("Driver ditutup.")
+    if st.button("Tampilkan Halaman"):
+        # Menyematkan halaman web menggunakan iframe
+        st.markdown(f'<iframe src="{url}" width="800" height="600" frameborder="0"></iframe>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
